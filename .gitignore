@@ -1,0 +1,13 @@
+# Python
+.virtualenv/
+*.py[co]
+
+# Editors / IDEs
+*~
+.*.sw*
+\#*\#
+
+# Build artefacts
+build/
+dist/
+.cache/
