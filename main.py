@@ -2,6 +2,7 @@ import logging
 import logging.handlers
 import os
 import sys
+import threading
 
 import webview
 
@@ -44,6 +45,10 @@ logger.debug("Base directory: %s", base_dir)
 index_path = os.path.join(resource_dir, "html", "index.html")
 index_url = "file://%s" % index_path
 logger.debug("Index URL: %s", index_url)
+
+thread = threading.Thread(target=create_server)
+thread.daemon = True
+thread.start()
 
 webview.create_window("MessageArchive", index_url,
                       width=800, height=600,
