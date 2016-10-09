@@ -2,6 +2,9 @@
 .virtualenv/
 *.py[co]
 
+# Node / React /Javascript
+frontend/node_modules
+
 # Editors / IDEs
 *~
 .*.sw*

@@ -8,7 +8,12 @@ Usage:
 from setuptools import setup
 
 APP = ['main.py']
-DATA_FILES = []
+PACKAGES = ['backend']
+DATA_FILES = [
+    ("js", ["frontend/dist/js/bundle.js"]),
+    ("html", ["frontend/dist/html/index.html"]),
+    ("css", ["frontend/dist/css/bundle.css"]),
+]
 OPTIONS = {
     'argv_emulation': True,
     'iconfile': './assets/AppIcon.icns',
