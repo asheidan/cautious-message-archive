@@ -17,6 +17,8 @@ LESSC      = $(NODEBIN)/lessc
 
 ###############################################################################
 
+PYS         = $(shell find backend -name '*.py' -type f)
+
 JSXS        = $(shell find frontend/jsx -name '*.jsx' -type f)
 JSBUNDLE    = frontend/dist/js/bundle.js
 
@@ -28,11 +30,12 @@ STYLEBUNDLE = frontend/dist/css/bundle.css
 
 ###############################################################################
 
-$(TARGET): setup.py main.py $(STYLEBUNDLE) $(JSBUNDLE) $(HTMLBUNDLE) $(VIRTUALENV)
+$(TARGET): setup.py main.py $(STYLEBUNDLE) $(JSBUNDLE) $(HTMLBUNDLE) $(PYS) $(VIRTUALENV)
 	sed -i "52s/^    m = mf.load_module(.*/    if hasattr(mf, 'load_module'):\n        m = mf.load_module(m.identifier, fp, pathname, stuff)\n    else:\n        m = mf._load_module(m.identifier, fp, pathname, stuff)/" $(VIRTUALENV)/lib/python3.5/site-packages/py2app/recipes/virtualenv.py
 	$(PYTHON) $< py2app
 
 dev: $(STYLEBUNDLE) $(JSBUNDLE) $(HTMLBUNDLE)
+	$(PYTHON) -m backend --logging=debug
 .PHONY: dev
 
 server: $(VIRTUALENV)
