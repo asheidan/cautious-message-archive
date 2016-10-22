@@ -17,6 +17,7 @@ DATA_FILES = [
 OPTIONS = {
     'argv_emulation': True,
     'iconfile': './assets/AppIcon.icns',
+    'packages': PACKAGES,
     'plist': {
         'CFBundleIdentifier': 'se.ojoj.messagearchive',
         'CFBundleName': 'MessageArchive',
