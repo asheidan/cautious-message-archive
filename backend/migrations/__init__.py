@@ -6,13 +6,32 @@ import os
 
 from sqlalchemy import Column
 from sqlalchemy import String
-from sqlalchemy import MetaData, Table
+from sqlalchemy import Table
 
-from backend.models import Base
 from backend.db import engine, Session
+from backend.models import Base
 
 
 migration_directory = os.path.dirname(__file__)
+
+
+def add_column_to_table(table, column):
+    engine = None
+    if table.metadata.is_bound():
+        engine = table.metadata.bind
+
+    table_name = table.name
+
+    column_name = column.compile(dialect=engine.dialect)
+    column_type = column.type.compile(dialect=engine.dialect)
+
+    query_string = "ALTER TABLE %s ADD COLUMN %s %s " % (
+        table_name, column_name, column_type
+    )
+    print(query_string)
+    engine.execute(query_string)
+
+Table.add_column = add_column_to_table
 
 
 class SchemaMigration(Base):
@@ -25,14 +44,16 @@ class SchemaMigration(Base):
 
 # TODO: Create table in DB if it is missing
 if not SchemaMigration.__table__.exists(bind=engine):
-    print(type(SchemaMigration.__table__))
+    print("Table for migrations was not found, will create now...")
     SchemaMigration.__table__.create(bind=engine)
-# TODO: Extract list from DB of applied migrations
+
+migration_engine = engine
 
 
 def list_migrations():
     """ Return list of all migrations """
 
+    # Extract list from DB of applied migrations
     session = Session()
     applied_migrations = (session.query(SchemaMigration)
                           .order_by("timestamp").all())
@@ -85,18 +106,31 @@ def display_migrations():
                migration.name[:20], migration.title))
 
 
-def apply():
+def apply_migrations():
     """ Try to apply all migrations not applied """
-    pass
+    # TODO: Find better name than apply
 
-   # for migration in list_migrations():
-   #     migration.apply(migration_engine)
+    for migration in list_migrations():
+        if not migration.is_applied:
+            if not hasattr(migration, "apply"):
+                raise Exception("Missing code for applying migration.")
+            migration.apply(migration_engine)
+            session = Session()
+            session.add(SchemaMigration(timestamp=migration.timestamp,
+                                        name=migration.name))
+            session.commit()
+            session.close()
 
 
-def remove(until):
+def remove_migrations(until):
     """ Try to remove all migrations until given TS """
-    pass
 
-   # for migration in list_migrations():
-   #     migration.remove(migration_engine)
-
+    for migration in list_migrations():
+        if migration.is_applied:
+            if not hasattr(migration, "remove"):
+                raise Exception("Missing code for removing migration.")
+            migration.remove(migration_engine)
+            session = Session()
+            (session.query(SchemaMigration)
+             .filter(SchemaMigration.timestamp == migration.timestamp)
+             .delete())

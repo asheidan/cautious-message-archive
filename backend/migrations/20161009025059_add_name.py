@@ -7,10 +7,4 @@ def apply(migrate_engine):
     meta = MetaData(bind=migrate_engine)
     contacts_table = Table("contacts", meta, autoload=True)
     name_column = Column("name", String(256))
-    name_column.create(contacts_table)
-
-
-def remove(migrate_engine):
-    meta = MetaData(bind=migrate_engine)
-    contacts_table = Table("contacts", meta, autoload=True)
-    contacts_table.c.name.drop()
+    contacts_table.add_column(name_column)
