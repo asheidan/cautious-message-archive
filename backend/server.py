@@ -38,7 +38,8 @@ def setup_logging():
 def create_server():
     parse_command_line()
     http_server = tornado.httpserver.HTTPServer(application)
-    http_server.listen(port=options.http_port)
+    http_server.listen(port=options.http_port,
+                       address=options.http_address)
 
     try:
         logger.info("Starting server listening on port %d", options.http_port)
