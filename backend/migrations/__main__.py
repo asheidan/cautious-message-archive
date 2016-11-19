@@ -15,8 +15,9 @@ def nop():
 
 
 def parse_command_line():
-    from backend.migrations import display_migrations
     from backend.migrations import apply_migrations
+    from backend.migrations import create_migration
+    from backend.migrations import display_migrations
 
     parser = argparse.ArgumentParser()
 
@@ -34,6 +35,15 @@ def parse_command_line():
     )
     apply_parser.set_defaults(func=apply_migrations)
 
+    create_subparser = sub_parsers.add_parser(
+        "create",
+        help="Create new migration"
+    )
+    create_subparser.set_defaults(func=create_migration)
+    create_subparser.add_argument("migration_name", metavar="NAME", type=str,
+                                  help=("The name of the migration."
+                                        " (Will be used for filename)"))
+
     args = parser.parse_args()
 
     return args
@@ -45,4 +55,4 @@ if __name__ == "__main__":
 
     # Make sure that the table for schema migrations exist before
     # Applying magic
-    args.func()
+    args.func(args)

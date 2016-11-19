@@ -1,5 +1,6 @@
 """ Help script to migrate database with scripts in this module. """
 
+from datetime import datetime
 import importlib
 from glob import glob
 import os
@@ -13,6 +14,8 @@ from backend.models import Base
 
 
 migration_directory = os.path.dirname(__file__)
+
+migration_template = os.path.join(migration_directory, "__template__.txt")
 
 
 def add_column_to_table(table, column):
@@ -88,7 +91,7 @@ def list_migrations():
         yield module
 
 
-def display_migrations():
+def display_migrations(args):
     for migration in list_migrations():
         applied = "*" if migration.is_applied else " "
         parts = ""
@@ -106,7 +109,7 @@ def display_migrations():
                migration.name[:20], migration.title))
 
 
-def apply_migrations():
+def apply_migrations(args):
     """ Try to apply all migrations not applied """
     # TODO: Find better name than apply
 
@@ -134,3 +137,18 @@ def remove_migrations(until):
             (session.query(SchemaMigration)
              .filter(SchemaMigration.timestamp == migration.timestamp)
              .delete())
+
+
+def create_migration(args):
+    """ Create a new migration from template """
+
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    filename = "%s_%s.py" % (timestamp, args.migration_name)
+    filepath = os.path.join(migration_directory, filename)
+    with open(migration_template, "r") as template_file:
+        template = template_file.read()
+        with open(filepath, "w") as migration_file:
+            migration_file.write(template)
+
+            print("A new migration has been created: %s" %
+                  filepath)
