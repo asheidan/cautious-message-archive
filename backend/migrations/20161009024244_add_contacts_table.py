@@ -1,12 +1,14 @@
-""" Initial commits of basic models. """
+""" Add table for the Contact model """
 
-from sqlalchemy import Table, MetaData, Column, Integer
+from sqlalchemy import Table, MetaData, Column, Integer, String
 
 meta = MetaData()
 
 contacts_table = Table(
     "contacts", meta,
-    Column("id", Integer, primary_key=True)
+    Column("id", Integer, primary_key=True),
+    Column("name", String(256)),
+    Column("nickname", String(256)),
 )
 
 
